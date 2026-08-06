@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Order Fulfillment Delay Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#F3F2F1;
+    --panel:#FFFFFF;
+    --navy:#243A5E;
+    --navy-dark:#1B2B45;
+    --gold:#F2C94C;
+    --teal:#2EC4B6;
+    --red:#E15554;
+    --text:#242424;
+    --muted:#605E5C;
+    --border:#E1DFDD;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Segoe UI', Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+  }
+  .topbar{
+    background:var(--navy-dark);
+    color:#fff;
+    padding:16px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .topbar h1{
+    font-size:18px;
+    margin:0;
+    font-weight:600;
+    letter-spacing:.2px;
+  }
+  .topbar .sub{
+    font-size:12px;
+    color:#B9C2D0;
+    margin-top:2px;
+  }
+  .topbar .badge{
+    background:var(--teal);
+    color:#04302B;
+    font-size:11px;
+    font-weight:700;
+    padding:5px 10px;
+    border-radius:3px;
+    letter-spacing:.4px;
+  }
+  .filters{
+    background:var(--panel);
+    border-bottom:1px solid var(--border);
+    padding:10px 28px;
+    display:flex;
+    gap:18px;
+    align-items:center;
+    font-size:12.5px;
+    color:var(--muted);
+  }
+  .filters .chip{
+    background:#F3F2F1;
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:5px 12px;
+    color:var(--navy);
+    font-weight:600;
+  }
+  .grid{
+    padding:20px 28px 40px;
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:16px;
+  }
+  .kpi{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,.04);
+  }
+  .kpi .label{
+    font-size:11.5px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:.4px;
+    font-weight:600;
+  }
+  .kpi .value{
+    font-size:28px;
+    font-weight:700;
+    color:var(--navy);
+    margin-top:6px;
+  }
+  .kpi .delta{
+    font-size:12.5px;
+    margin-top:4px;
+    font-weight:600;
+  }
+  .kpi .delta.good{ color:#107C41; }
+  .kpi .delta.bad{ color:var(--red); }
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:16px 18px 8px;
+    box-shadow:0 1px 2px rgba(0,0,0,.04);
+  }
+  .panel h2{
+    font-size:13.5px;
+    margin:0 0 4px;
+    color:var(--navy);
+    font-weight:700;
+  }
+  .panel .note{
+    font-size:11.5px;
+    color:var(--muted);
+    margin-bottom:10px;
+  }
+  .span2{ grid-column:span 2; }
+  .span4{ grid-column:span 4; }
+  canvas{ max-height:260px; }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:12.5px;
+  }
+  th{
+    text-align:left;
+    background:#F8F9FA;
+    color:var(--muted);
+    font-weight:600;
+    padding:8px 10px;
+    border-bottom:1px solid var(--border);
+  }
+  td{
+    padding:8px 10px;
+    border-bottom:1px solid #F0F0F0;
+  }
+  td.num{ text-align:right; font-variant-numeric:tabular-nums; }
+  .bar-wrap{
+    background:#EEF1F5;
+    border-radius:3px;
+    height:8px;
+    width:100%;
+    overflow:hidden;
+  }
+  .bar-fill{
+    background:var(--navy);
+    height:100%;
+  }
+  footer{
+    padding:10px 28px 30px;
+    font-size:11px;
+    color:var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <h1>Order Fulfillment Delay Analysis</h1>
+    <div class="sub">Operations &amp; IT · 6-Month Rolling Window</div>
+  </div>
+  <div class="badge">ROOT CAUSE IDENTIFIED</div>
+</div>
+
+<div class="filters">
+  <span>Filters:</span>
+  <span class="chip">All Sites</span>
+  <span class="chip">All Order Types</span>
+  <span class="chip">Jan – Jun 2026</span>
+</div>
+
+<div class="grid">
+
+  <div class="kpi">
+    <div class="label">Avg. Order-to-Dispatch Time</div>
+    <div class="value">3.1 days</div>
+    <div class="delta bad">Target: 1.5 days</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Confirm → Allocate Share</div>
+    <div class="value">62%</div>
+    <div class="delta bad">of total dispatch time</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Afternoon Cutoff Delay</div>
+    <div class="value">+460%</div>
+    <div class="delta bad">vs. morning confirmations</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Orders Analyzed</div>
+    <div class="value">400</div>
+    <div class="delta">across 3 sites</div>
+  </div>
+
+  <div class="panel span2">
+    <h2>Share of Dispatch Time by Stage</h2>
+    <div class="note">Confirm→Allocate consumes the majority of total order time</div>
+    <canvas id="stageChart"></canvas>
+  </div>
+
+  <div class="panel span2">
+    <h2>Allocation Delay by Confirmation Window</h2>
+    <div class="note">Orders confirmed after the 2pm cutoff wait for the next batch run</div>
+    <canvas id="cutoffChart"></canvas>
+  </div>
+
+  <div class="panel span4">
+    <h2>Stage Detail</h2>
+    <div class="note">Average duration and share of total, all 400 orders in sample</div>
+    <table>
+      <thead>
+        <tr><th>Stage</th><th>Avg Hours</th><th>Avg Days</th><th>% of Total</th><th style="width:180px;">Share</th></tr>
+      </thead>
+      <tbody id="stageTable"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<footer>
+  Data: synthetic sample built to match the case-study findings (order confirmation → carrier handoff, 400 orders, 3 warehouse sites).
+  Recreate this view in Power BI by importing <em>PowerBI_Import_Data</em> from the companion Excel workbook and building matching visuals.
+</footer>
+
+<script>
+const stageData = [
+  { stage: "Confirm → Allocate", hrs: 18.5, pct: 46.6 },
+  { stage: "Pick → Pack", hrs: 8.7, pct: 21.8 },
+  { stage: "Allocate → Pick", hrs: 7.1, pct: 18.0 },
+  { stage: "Pack → Handoff", hrs: 5.5, pct: 13.7 },
+];
+
+const cutoffData = [
+  { window: "Before 10:00", hrs: 4.5 },
+  { window: "10:00–13:59", hrs: 8.0 },
+  { window: "14:00+ (cutoff)", hrs: 25.0 },
+];
+
+new Chart(document.getElementById('stageChart'), {
+  type: 'bar',
+  data: {
+    labels: stageData.map(d => d.stage),
+    datasets: [{
+      data: stageData.map(d => d.pct),
+      backgroundColor: ['#243A5E', '#2EC4B6', '#5B7DB1', '#9AAEC7'],
+      borderRadius: 3,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    plugins: { legend: { display: false },
+      tooltip: { callbacks: { label: (c) => c.raw + '% of total dispatch time' } } },
+    scales: {
+      x: { ticks: { callback: v => v + '%' }, grid: { color: '#EFEFEF' } },
+      y: { grid: { display: false } }
+    }
+  }
+});
+
+new Chart(document.getElementById('cutoffChart'), {
+  type: 'line',
+  data: {
+    labels: cutoffData.map(d => d.window),
+    datasets: [{
+      label: 'Avg hrs to allocate',
+      data: cutoffData.map(d => d.hrs),
+      borderColor: '#E15554',
+      backgroundColor: 'rgba(225,85,84,0.12)',
+      fill: true,
+      tension: 0.3,
+      pointBackgroundColor: '#E15554',
+      pointRadius: 5,
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { title: { display: true, text: 'Hours' }, grid: { color: '#EFEFEF' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+const tbody = document.getElementById('stageTable');
+stageData.forEach(d => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>${d.stage}</td>
+    <td class="num">${d.hrs.toFixed(1)}</td>
+    <td class="num">${(d.hrs/24).toFixed(2)}</td>
+    <td class="num">${d.pct.toFixed(1)}%</td>
+    <td><div class="bar-wrap"><div class="bar-fill" style="width:${d.pct*2}%;"></div></div></td>
+  `;
+  tbody.appendChild(tr);
+});
+</script>
+
+</body>
+</html>
